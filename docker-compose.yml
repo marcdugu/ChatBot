@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  weaviate:
+    image: cr.weaviate.io/semitechnologies/weaviate:1.27.6
+    restart: unless-stopped
+    ports:
+      - "8080:8080"      # HTTP
+      - "50051:50051"    # gRPC
+    environment:
+      CLUSTER_HOSTNAME: "node1"
+      #RAFT_ENABLE_ONE_NODE_RECOVERY: "true"   # TEMPORARY
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      QUERY_DEFAULTS_LIMIT: "25"
+      ENABLE_MODULES: "text2vec-transformers"
+      TRANSFORMERS_INFERENCE_API: "http://text2vec-transformers:8080"
+    volumes:
+      - ./weaviate_data:/var/lib/weaviate
+
+  text2vec-transformers:
+    image: cr.weaviate.io/semitechnologies/transformers-inference:sentence-transformers-multi-qa-MiniLM-L6-cos-v1
+    environment:
+      ENABLE_CUDA: "0"   # set "1" if have a GPU pass-through
